@@ -1,0 +1,32 @@
+{
+  "name": "vue2-playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vue-cli-service serve --port=4002 --host=0.0.0.0",
+    "style": "npx prettier . --write"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sundicide/vue2-playground"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@coreui/coreui-pro": "^3.1.1",
+    "lodash": "^4.17.21",
+    "three": "^0.164.1",
+    "vue": "^2.6.11",
+    "vue-router": "^3.1.6"
+  },
+  "devDependencies": {
+    "@babel/polyfill": "^7.10.4",
+    "@vue/cli-service": "^4.3.1",
+    "node-sass": "^4.13.1",
+    "prettier": "^2.8.8",
+    "sass-loader": "^8.0.2",
+    "vue-template-compiler": "^2.6.11"
+  }
+}
