@@ -5,6 +5,7 @@ import InteractiveVoxelpainter from '@/components/Three/InteractiveVoxelpainter'
 import GeometryExtrudeSplines from '@/components/Three/GeometryExtrudeSplines'
 import ImageTest from '@/components/Three/ImageTest'
 import Geometry from '@/components/Three/Geometry'
+import CameraPractice from '@/components/Three/CameraPractice.vue'
 
 const routes = [
   // {
@@ -41,6 +42,11 @@ const routes = [
     path: '/geometry',
     name: 'Geometry',
     component: Geometry,
+  },
+  {
+    path: '/camera-practice',
+    name: 'Camera Practice',
+    component: CameraPractice,
   },
 ]
 
