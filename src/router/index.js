@@ -4,6 +4,7 @@ import HomeComponent from '@/components/Home'
 import InteractiveVoxelpainter from '@/components/Three/InteractiveVoxelpainter'
 import GeometryExtrudeSplines from '@/components/Three/GeometryExtrudeSplines'
 import ImageTest from '@/components/Three/ImageTest'
+import Geometry from '@/components/Three/Geometry'
 
 const routes = [
   // {
@@ -35,6 +36,11 @@ const routes = [
     path: '/image-test',
     name: 'ImageTest',
     component: ImageTest,
+  },
+  {
+    path: '/geometry',
+    name: 'Geometry',
+    component: Geometry,
   },
 ]
 
