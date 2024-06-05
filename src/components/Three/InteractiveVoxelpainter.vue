@@ -27,6 +27,8 @@ export default {
   },
   methods: {
     initThree() {
+      const that = this
+
       init()
       render()
 
@@ -71,8 +73,6 @@ export default {
         const gridHelper = new THREE.GridHelper(1000, 20)
         scene.add(gridHelper)
 
-        //
-
         raycaster = new THREE.Raycaster()
         pointer = new THREE.Vector2()
 
@@ -99,7 +99,7 @@ export default {
         renderer = new THREE.WebGLRenderer({ antialias: true })
         renderer.setPixelRatio(window.devicePixelRatio)
         renderer.setSize(window.innerWidth, window.innerHeight)
-        document.body.appendChild(renderer.domElement)
+        that.$refs.interactiveVoxelpainter.appendChild(renderer.domElement)
 
         document.addEventListener('pointermove', onPointerMove)
         document.addEventListener('pointerdown', onPointerDown)
