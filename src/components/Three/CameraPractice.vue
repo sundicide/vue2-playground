@@ -1,6 +1,10 @@
 <template>
-  <div ref="cameraPractice" style="width: 600px; height: 600px;">
+  <div ref="cameraPractice" style="width: 1200px; height: 600px; position: relative;">
     <canvas id="c" style="width: 100%; height: 100%;"></canvas>
+    <div class="split">
+     <div id="view1" tabindex="1"></div>
+     <div id="view2" tabindex="2"></div>
+    </div>
   </div>
 </template>
 
@@ -57,25 +61,40 @@ export default {
         }
       }
 
-      function updateCamera() {
-        camera.updateProjectionMatrix();
-      }
-     
       const gui = new GUI();
-      gui.add(camera, 'fov', 1, 180).onChange(updateCamera);
+      gui.add(camera, 'fov', 1, 180);
       const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-      gui.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near').onChange(updateCamera);
-      gui.add(minMaxGUIHelper, 'max', 0.1, 50, 0.1).name('far').onChange(updateCamera);
+      gui.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near');
+      gui.add(minMaxGUIHelper, 'max', 0.1, 50, 0.1).name('far');
 
-      const controls = new OrbitControls( camera, canvas );
+      const view1Elem = document.querySelector('#view1');
+      const view2Elem = document.querySelector('#view2');
+
+      const controls = new OrbitControls( camera, view1Elem );
       controls.target.set( 0, 5, 0 );
       controls.update();
 
       const scene = new THREE.Scene();
       scene.background = new THREE.Color( 'black' );
 
+      const cameraHelper = new THREE.CameraHelper(camera);
+      scene.add(cameraHelper);
+
+      const camera2 = new THREE.PerspectiveCamera(
+        60,  // fov
+        2,   // aspect
+        0.1, // near
+        500, // far
+      );
+      camera2.position.set(40, 10, 30);
+      camera2.lookAt(0, 5, 0);
+
+      const controls2 = new OrbitControls(camera2, view2Elem);
+      controls2.target.set(0, 5, 0);
+      controls2.update();
+
       {
-        const planeSize = 40;
+        const planeSize = 80;
 
         const loader = new THREE.TextureLoader();
         const texture = loader.load( 'https://threejs.org/manual/examples/resources/images/checker.png' );
@@ -137,13 +156,68 @@ export default {
         return needResize;
       }
 
+      function setScissorForElement(elem) {
+        const canvasRect = canvas.getBoundingClientRect();
+        const elemRect = elem.getBoundingClientRect();
+
+        // compute a canvas relative rectangle
+        const right = Math.min(elemRect.right, canvasRect.right) - canvasRect.left;
+        const left = Math.max(0, elemRect.left - canvasRect.left);
+        const bottom = Math.min(elemRect.bottom, canvasRect.bottom) - canvasRect.top;
+        const top = Math.max(0, elemRect.top - canvasRect.top);
+
+        const width = Math.min(canvasRect.width, right - left);
+        const height = Math.min(canvasRect.height, bottom - top);
+
+        // setup the scissor to only render to that part of the canvas
+        const positiveYUpBottom = canvasRect.height - bottom;
+        renderer.setScissor(left, positiveYUpBottom, width, height);
+        renderer.setViewport(left, positiveYUpBottom, width, height);
+
+        // return the aspect
+        return width / height;
+      }
+
       function render() {
-        if ( resizeRendererToDisplaySize( renderer ) ) {
-          const canvas = renderer.domElement;
-          camera.aspect = canvas.clientWidth / canvas.clientHeight;
-          camera.updateProjectionMatrix();
+        resizeRendererToDisplaySize(renderer)
+
+        // turn on the scissor
+        renderer.setScissorTest(true)
+
+        // render the original view
+        {
+          const aspect = setScissorForElement(view1Elem)
+
+          // adjust the camera for this aspect
+          camera.aspect = aspect
+          camera.updateProjectionMatrix()
+          cameraHelper.update()
+
+          // don't draw the camera helper in the original view
+          cameraHelper.visible = false
+
+          scene.background.set(0x000000)
+
+          //render
+          renderer.render(scene, camera)
         }
-        renderer.render( scene, camera );
+
+        // render from the 2nd camera
+        {
+          const aspect = setScissorForElement(view2Elem)
+
+          // adjust the camera for this aspect
+          camera2.aspect = aspect
+          camera2.updateProjectionMatrix()
+
+          // draw the camera helper in the 2nd view
+          cameraHelper.visible = true
+
+          scene.background.set(0x000040)
+
+          renderer.render(scene, camera2)
+        }
+
         requestAnimationFrame( render );
       }
       requestAnimationFrame( render );
@@ -151,3 +225,18 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.split {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+.split > div {
+  width: 100%;
+  height: 100%;
+}
+</style>
