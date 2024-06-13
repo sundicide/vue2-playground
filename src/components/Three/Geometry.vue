@@ -66,6 +66,7 @@ import {
 
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import _ from 'lodash'
 
 let container, stats
 
@@ -105,7 +106,7 @@ export default {
         }
       }
 
-      function updateGroupGeometry(mesh, geometry) {
+      function updateGroupGeometry(mesh, geometry, data = {}) {
         mesh.children[0].geometry.dispose()
         mesh.children[1].geometry.dispose()
 
@@ -113,6 +114,17 @@ export default {
         mesh.children[1].geometry = geometry
 
         // these do not update nicely together if shared
+
+        mesh.children[1].material.dispose()
+        const meshMaterial = new MeshPhongMaterial({
+          color: '#156289',
+          emissive: 0x072534,
+          side: DoubleSide,
+          flatShading: true,
+          opacity: data.opacity || 1,
+          transparent: true,
+        })
+        mesh.children[1].material = meshMaterial
       }
 
       // heart shape
@@ -139,6 +151,8 @@ export default {
             widthSegments: 1,
             heightSegments: 1,
             depthSegments: 1,
+            opacity: 1,
+            color: '0x156289',
           }
 
           function generateGeometry() {
@@ -151,7 +165,8 @@ export default {
                 data.widthSegments,
                 data.heightSegments,
                 data.depthSegments
-              )
+              ),
+              data,
             )
           }
 
@@ -171,6 +186,10 @@ export default {
           folder
             .add(data, 'depthSegments', 1, 10)
             .step(1)
+            .onChange(generateGeometry)
+          folder
+            .add(data, 'opacity', 0, 1)
+            .step(0.1)
             .onChange(generateGeometry)
 
           generateGeometry()
@@ -824,6 +843,7 @@ export default {
         emissive: 0x072534,
         side: DoubleSide,
         flatShading: true,
+        transparent: true,
       })
 
       group.add(new LineSegments(geometry, lineMaterial))
